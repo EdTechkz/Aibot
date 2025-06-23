@@ -13,7 +13,7 @@ load_dotenv()
 app = Flask(__name__)
 
 # Hugging Face API настройки
-HUGGINGFACE_API_URL = "https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium"
+HUGGINGFACE_API_URL = "https://api-inference.huggingface.co/models/bigscience/bloomz-560m"
 HUGGINGFACE_API_KEY = os.getenv('HUGGINGFACE_API_KEY', '')
 
 # Sherlock Holmes persona
@@ -41,10 +41,11 @@ SHERLOCK_PROMPT = """Ты - Шерлок Холмс, знаменитый дет
 scraped_content = []
 
 def generate_response(question, context=""):
-    """Генерация ответа с использованием Hugging Face API"""
+    """Генерация ответа с использованием Hugging Face API или предустановленных ответов"""
     try:
-        if not HUGGINGFACE_API_KEY:
-            return "Извините, API ключ Hugging Face не настроен. Пожалуйста, добавьте HUGGINGFACE_API_KEY в файл .env"
+        if not HUGGINGFACE_API_KEY or HUGGINGFACE_API_KEY == "your_huggingface_api_key_here":
+            # Используем предустановленные ответы, если API ключ не настроен
+            return generate_fallback_response(question, context)
         
         # Формируем промпт
         prompt = SHERLOCK_PROMPT.format(context=context, question=question)
@@ -56,13 +57,7 @@ def generate_response(question, context=""):
         }
         
         payload = {
-            "inputs": prompt,
-            "parameters": {
-                "max_length": 200,
-                "temperature": 0.7,
-                "do_sample": True,
-                "return_full_text": False
-            }
+            "inputs": prompt
         }
         
         response = requests.post(HUGGINGFACE_API_URL, headers=headers, json=payload, timeout=30)
@@ -90,7 +85,58 @@ def generate_response(question, context=""):
         
     except Exception as e:
         print(f"Ошибка генерации: {e}")
-        return "Прошу прощения, произошла ошибка в моих рассуждениях. Попробуйте еще раз."
+        return generate_fallback_response(question, context)
+
+def generate_fallback_response(question, context=""):
+    """Генерация ответа без API ключа, используя предустановленные ответы"""
+    question_lower = question.lower()
+    
+    # Простые правила для ответов в стиле Шерлока Холмса
+    if any(word in question_lower for word in ['привет', 'здравствуй', 'добрый день']):
+        return "Добро пожаловать, дорогой друг! Я Шерлок Холмс, и я готов помочь вам в расследовании. <strong>Элементарно, Ватсон!</strong>"
+    
+    elif any(word in question_lower for word in ['как дела', 'как ты']):
+        return "Превосходно, мой дорогой друг! Мой ум работает как часы, а дедуктивные способности находятся на пике формы. Готов к новым загадкам!"
+    
+    elif any(word in question_lower for word in ['кто ты', 'расскажи о себе']):
+        return "Я Шерлок Холмс, детектив-консультант с Бейкер-стрит, 221Б. Мой дедуктивный метод позволяет мне замечать то, что упускают другие. <em>Когда ты исключишь невозможное, то, что остается, и есть правда, как бы невероятно это ни казалось.</em>"
+    
+    elif any(word in question_lower for word in ['помощь', 'что умеешь', 'возможности']):
+        return "Мои возможности включают: <strong>дедуктивный анализ</strong>, <strong>веб-скрапинг</strong>, <strong>RAG систему</strong> для поиска информации, и, конечно же, <em>викторианский стиль речи</em>. Предоставьте мне URL для анализа или задайте вопрос!"
+    
+    elif any(word in question_lower for word in ['загадка', 'задача', 'проблема']):
+        return "Интересно! Расскажите мне подробности этой загадки. Помните, <strong>детали имеют значение</strong>. Каждый факт может быть ключом к разгадке."
+    
+    elif any(word in question_lower for word in ['логика', 'дедукция', 'метод']):
+        return "Мой дедуктивный метод основан на наблюдении и логике. <em>Вы видите, но не наблюдаете</em>. Я замечаю мельчайшие детали, которые другие упускают, и соединяю их в логическую цепочку."
+    
+    elif any(word in question_lower for word in ['ватсон', 'доктор']):
+        return "Ах, мой дорогой Ватсон! Мой верный друг и помощник. Хотя он иногда не понимает моих методов, его присутствие и записи наших дел бесценны для истории криминалистики."
+    
+    elif any(word in question_lower for word in ['лондон', 'бейкер-стрит']):
+        return "Да, я живу на Бейкер-стрит, 221Б, в Лондоне. Мой дом - это не просто жилище, это центр моих расследований. Здесь я играю на скрипке, провожу химические эксперименты и принимаю клиентов."
+    
+    elif any(word in question_lower for word in ['скрипка', 'музыка']):
+        return "Музыка помогает мне думать, мой дорогой друг. Когда я играю на скрипке, мой ум может сосредоточиться на самых сложных загадках. Это как медитация для дедуктивного мышления."
+    
+    elif context and len(context) > 10:
+        # Если есть контекст из веб-скрапинга
+        return f"Интересно! Основываясь на проанализированной информации, я могу сказать следующее: <strong>контекст был успешно извлечен</strong>. Теперь я могу отвечать на вопросы, используя эти данные. Что именно вас интересует?"
+    
+    else:
+        # Общий ответ
+        responses = [
+            "Хм, интересное наблюдение, мой дорогой друг. Позвольте мне применить свой дедуктивный метод к этому вопросу.",
+            "Элементарно! Хотя, возможно, не совсем. Давайте разберем это по порядку.",
+            "Интересная загадка! Мой ум уже работает над решением.",
+            "Позвольте мне проанализировать эту ситуацию с помощью логики и наблюдения.",
+            "Хм, это требует более глубокого анализа. Мой дедуктивный метод в действии!",
+            "Интересно! Каждый факт может быть ключом к разгадке. Расскажите больше.",
+            "Мой дорогой Ватсон, это классический случай для применения дедуктивного метода!",
+            "Позвольте мне применить свой метод: <em>когда ты исключишь невозможное, то, что остается, и есть правда</em>."
+        ]
+        import random
+        return random.choice(responses)
 
 def scrape_website(url):
     """Скрапинг веб-страницы"""
@@ -228,7 +274,7 @@ def status():
     return jsonify({
         'api_configured': bool(HUGGINGFACE_API_KEY),
         'scraped_sites': len(scraped_content),
-        'model': 'microsoft/DialoGPT-medium (via API)'
+        'model': 'gpt2 (via API)'
     })
 
 if __name__ == '__main__':

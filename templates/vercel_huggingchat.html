@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Шерлок Холмс - AI Детектив</title>
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&family=SF+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #1d1d1f;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 30px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #007AFF, #5856D6, #FF2D92, #FF9500);
+            border-radius: 24px 24px 0 0;
+        }
+
+        .header h1 {
+            font-size: 3.5em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #007AFF, #5856D6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            letter-spacing: -0.02em;
+        }
+
+        .header p {
+            font-size: 1.3em;
+            color: #86868b;
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px 25px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .stat-number {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #007AFF;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #86868b;
+            font-weight: 500;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2.5fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .sidebar {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 24px;
+            padding: 30px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+        }
+
+        .sidebar h3 {
+            color: #1d1d1f;
+            margin-bottom: 25px;
+            font-size: 1.4em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar h3::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(135deg, #007AFF, #5856D6);
+            border-radius: 2px;
+        }
+
+        .url-input-section {
+            margin-bottom: 30px;
+        }
+
+        .url-input-section label {
+            display: block;
+            margin-bottom: 12px;
+            color: #1d1d1f;
+            font-weight: 500;
+            font-size: 1.1em;
+        }
+
+        .url-input-section input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e5e5e7;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            color: #1d1d1f;
+            font-size: 16px;
+            font-family: 'SF Pro Display', sans-serif;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .url-input-section input:focus {
+            outline: none;
+            border-color: #007AFF;
+            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+            background: #ffffff;
+        }
+
+        .url-input-section input::placeholder {
+            color: #86868b;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #007AFF, #5856D6);
+            color: #ffffff;
+            border: none;
+            padding: 16px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-family: 'SF Pro Display', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 122, 255, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .features-grid {
+            display: grid;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.8);
+            transform: translateX(5px);
+        }
+
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #007AFF, #5856D6);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .feature-text {
+            color: #1d1d1f;
+            font-weight: 500;
+        }
+
+        .chat-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            height: 700px;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 25px 30px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-header h3 {
+            color: #1d1d1f;
+            font-size: 1.4em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: rgba(52, 199, 89, 0.1);
+            color: #34c759;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #34c759;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 25px 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 20px 24px;
+            border-radius: 20px;
+            animation: slideIn 0.4s ease-out;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            line-height: 1.6;
+            font-size: 16px;
+            position: relative;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #007AFF, #5856D6);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .message.bot {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.9);
+            color: #1d1d1f;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .message.bot::before {
+            content: "🔍";
+            position: absolute;
+            top: -8px;
+            left: 20px;
+            background: #ffffff;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 14px;
+            border: 2px solid #007AFF;
+        }
+
+        .message.user::before {
+            content: "👤";
+            position: absolute;
+            top: -8px;
+            right: 20px;
+            background: #007AFF;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 14px;
+            color: white;
+        }
+
+        .chat-input {
+            padding: 25px 30px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 18px 24px;
+            border: 2px solid #e5e5e7;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #1d1d1f;
+            font-size: 16px;
+            font-family: 'SF Pro Display', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input input:focus {
+            outline: none;
+            border-color: #007AFF;
+            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+            background: #ffffff;
+        }
+
+        .chat-input input::placeholder {
+            color: #86868b;
+            font-style: italic;
+        }
+
+        .chat-input button {
+            padding: 18px 24px;
+            background: linear-gradient(135deg, #007AFF, #5856D6);
+            color: #ffffff;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            font-family: 'SF Pro Display', sans-serif;
+        }
+
+        .chat-input button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 122, 255, 0.3);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 25px;
+            color: #007AFF;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .loading i {
+            animation: spin 1.5s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 16px;
+            text-align: center;
+            font-weight: 500;
+            border: 1px solid;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .status.success {
+            background: rgba(52, 199, 89, 0.1);
+            color: #34c759;
+            border-color: rgba(52, 199, 89, 0.3);
+        }
+
+        .status.error {
+            background: rgba(255, 59, 48, 0.1);
+            color: #ff3b30;
+            border-color: rgba(255, 59, 48, 0.3);
+        }
+
+        .achievement {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(20px);
+            transform: translateX(400px);
+            transition: transform 0.5s ease;
+            z-index: 1000;
+        }
+
+        .achievement.show {
+            transform: translateX(0);
+        }
+
+        .achievement-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .achievement-title {
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 5px;
+        }
+
+        .achievement-desc {
+            color: #86868b;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+            
+            .header h1 {
+                font-size: 2.8em;
+            }
+            
+            .chat-container {
+                height: 600px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header {
+                padding: 30px 20px;
+                margin-bottom: 30px;
+            }
+            
+            .header h1 {
+                font-size: 2.2em;
+            }
+            
+            .header p {
+                font-size: 1.1em;
+            }
+            
+            .stats-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .sidebar, .chat-container {
+                padding: 20px;
+            }
+            
+            .chat-container {
+                height: 500px;
+            }
+            
+            .message {
+                max-width: 90%;
+                padding: 15px 20px;
+                font-size: 15px;
+            }
+        }
+
+        .message.bot strong {
+            color: #007AFF;
+            font-weight: 600;
+        }
+
+        .message.bot em {
+            color: #5856D6;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Шерлок Холмс</h1>
+            <p>AI Детектив с дедуктивным методом и веб-скрапингом</p>
+            
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <span class="stat-number" id="messagesCount">0</span>
+                    <span class="stat-label">Сообщений</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="sitesCount">0</span>
+                    <span class="stat-label">Сайтов</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="casesCount">0</span>
+                    <span class="stat-label">Дел</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <h3>🌐 Веб-скрапинг</h3>
+                <div class="url-input-section">
+                    <label for="urlInput">URL для анализа:</label>
+                    <input type="url" id="urlInput" placeholder="https://example.com">
+                    <button class="btn" onclick="scrapeUrl()">
+                        🔍 Скрапить сайт
+                    </button>
+                </div>
+                
+                <div id="scrapeStatus"></div>
+                
+                <h3>💡 Возможности</h3>
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon">🧠</div>
+                        <span class="feature-text">Дедуктивный анализ</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🕷️</div>
+                        <span class="feature-text">Веб-скрапинг</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🔍</div>
+                        <span class="feature-text">RAG система</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🎭</div>
+                        <span class="feature-text">Викторианский стиль</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h3>💬 Диалог с Шерлоком</h3>
+                    <div class="chat-status">
+                        <div class="status-dot"></div>
+                        <span>Онлайн</span>
+                    </div>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message bot">
+                        Добро пожаловать, дорогой друг! Я Шерлок Холмс, готов применить свой дедуктивный метод к вашему делу. Расскажите мне о загадке или предоставьте URL для анализа.
+                    </div>
+                </div>
+                
+                <div class="loading" id="loading">
+                    <i>🔄</i> Шерлок анализирует...
+                </div>
+                
+                <div class="chat-input">
+                    <input type="text" id="messageInput" placeholder="Задайте вопрос Шерлоку..." onkeypress="handleKeyPress(event)">
+                    <button onclick="sendMessage()">
+                        📤
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="achievement" id="achievement">
+        <div class="achievement-icon">🏆</div>
+        <div class="achievement-title">Достижение разблокировано!</div>
+        <div class="achievement-desc">Вы получили новое достижение</div>
+    </div>
+
+    <script>
+        let messageCount = 0;
+        let sitesCount = 0;
+        let casesCount = 0;
+
+        function updateStats() {
+            document.getElementById('messagesCount').textContent = messageCount;
+            document.getElementById('sitesCount').textContent = sitesCount;
+            document.getElementById('casesCount').textContent = casesCount;
+        }
+
+        function showAchievement(title, desc, icon = '🏆') {
+            const achievement = document.getElementById('achievement');
+            achievement.querySelector('.achievement-icon').textContent = icon;
+            achievement.querySelector('.achievement-title').textContent = title;
+            achievement.querySelector('.achievement-desc').textContent = desc;
+            
+            achievement.classList.add('show');
+            
+            setTimeout(() => {
+                achievement.classList.remove('show');
+            }, 3000);
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function addMessage(content, isUser = false) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+            messageDiv.innerHTML = content;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            if (isUser) {
+                messageCount++;
+                updateStats();
+                
+                // Показываем достижения
+                if (messageCount === 5) {
+                    showAchievement('Первые шаги', 'Отправлено 5 сообщений', '👣');
+                } else if (messageCount === 10) {
+                    showAchievement('Активный пользователь', 'Отправлено 10 сообщений', '💬');
+                }
+            }
+        }
+
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            loading.style.display = show ? 'block' : 'none';
+        }
+
+        function showStatus(message, isError = false) {
+            const statusDiv = document.getElementById('scrapeStatus');
+            statusDiv.className = `status ${isError ? 'error' : 'success'}`;
+            statusDiv.textContent = message;
+            
+            setTimeout(() => {
+                statusDiv.textContent = '';
+                statusDiv.className = 'status';
+            }, 5000);
+        }
+
+        async function scrapeUrl() {
+            const url = document.getElementById('urlInput').value.trim();
+            if (!url) {
+                showStatus('Пожалуйста, введите URL', true);
+                return;
+            }
+            
+            try {
+                const response = await fetch('/scrape', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ url: url })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    showStatus(data.message);
+                    sitesCount++;
+                    updateStats();
+                    addMessage(`Отлично! Я проанализировал сайт <strong>${url}</strong> и добавил информацию в свою базу знаний.`, false);
+                    
+                    // Показываем достижение
+                    if (sitesCount === 1) {
+                        showAchievement('Первое расследование', 'Проанализирован первый сайт', '🔍');
+                    } else if (sitesCount === 5) {
+                        showAchievement('Опытный детектив', 'Проанализировано 5 сайтов', '🕵️');
+                    }
+                } else {
+                    showStatus(data.error, true);
+                }
+            } catch (error) {
+                showStatus('Ошибка при обработке URL', true);
+            }
+        }
+
+        async function sendMessage() {
+            const message = document.getElementById('messageInput').value.trim();
+            if (!message) return;
+            
+            addMessage(message, true);
+            document.getElementById('messageInput').value = '';
+            
+            showLoading(true);
+            
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ message: message })
+                });
+                
+                const data = await response.json();
+                if (data.response) {
+                    addMessage(data.response, false);
+                    casesCount++;
+                    updateStats();
+                } else {
+                    addMessage('Извините, произошла ошибка при обработке вашего запроса.', false);
+                }
+            } catch (error) {
+                addMessage('Извините, произошла ошибка при отправке сообщения.', false);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('messageInput').focus();
+            updateStats();
+        });
+    </script>
+</body>
+</html> 
