@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Шерлок Холмс - AI Детектив</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #ffd700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            color: #b0b0b0;
+            font-style: italic;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .sidebar {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            height: fit-content;
+        }
+
+        .sidebar h3 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .url-input-section {
+            margin-bottom: 25px;
+        }
+
+        .url-input-section label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e0e0e0;
+            font-weight: bold;
+        }
+
+        .url-input-section input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .url-input-section input::placeholder {
+            color: #888;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            color: #1a1a1a;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .chat-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+        }
+
+        .chat-header h3 {
+            color: #ffd700;
+            font-size: 1.4em;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 15px;
+            border-radius: 15px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: linear-gradient(45deg, #4a90e2, #357abd);
+            color: white;
+        }
+
+        .message.bot {
+            align-self: flex-start;
+            background: linear-gradient(45deg, #2c3e50, #34495e);
+            color: #e0e0e0;
+        }
+
+        .message.bot::before {
+            content: "🔍 ";
+            font-size: 1.2em;
+        }
+
+        .message.user::before {
+            content: "👤 ";
+            font-size: 1.2em;
+        }
+
+        .chat-input {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            font-size: 16px;
+        }
+
+        .chat-input input::placeholder {
+            color: #888;
+        }
+
+        .chat-input button {
+            padding: 15px 25px;
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            color: #1a1a1a;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #ffd700;
+        }
+
+        .loading i {
+            animation: spin 1s linear infinite;
+        }
+
+        .status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .status.success {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .status.error {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid rgba(244, 67, 54, 0.3);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+        }
+
+        .feature-card i {
+            font-size: 2.5em;
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h4 {
+            color: #ffd700;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .feature-card p {
+            color: #b0b0b0;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .chat-container {
+                height: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-search"></i> Шерлок Холмс</h1>
+            <p>"Элементарно, Ватсон!" - AI Детектив с функциями RAG и веб-скрапинга</p>
+        </div>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <h3><i class="fas fa-globe"></i> Веб-скрапинг</h3>
+                <div class="url-input-section">
+                    <label for="urlInput">URL для анализа:</label>
+                    <input type="url" id="urlInput" placeholder="https://ru.wikipedia.org/wiki/...">
+                    <button class="btn" onclick="scrapeUrl()">
+                        <i class="fas fa-download"></i> Скрапить сайт
+                    </button>
+                </div>
+                
+                <div id="scrapeStatus"></div>
+                
+                <h3><i class="fas fa-info-circle"></i> Возможности</h3>
+                <ul style="color: #b0b0b0; line-height: 1.8; padding-left: 20px;">
+                    <li>Дедуктивный анализ</li>
+                    <li>Веб-скрапинг</li>
+                    <li>RAG (Retrieval-Augmented Generation)</li>
+                    <li>Викторианский стиль речи</li>
+                    <li>Логические выводы</li>
+                </ul>
+            </div>
+
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h3><i class="fas fa-comments"></i> Диалог с Шерлоком</h3>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message bot">
+                        Добро пожаловать, дорогой друг! Я Шерлок Холмс, и я готов помочь вам в расследовании. 
+                        Расскажите мне о деле, которое требует моего внимания, или предоставьте URL для анализа. 
+                        Элементарно, Ватсон!
+                    </div>
+                </div>
+                
+                <div class="loading" id="loading">
+                    <i class="fas fa-spinner"></i> Шерлок анализирует...
+                </div>
+                
+                <div class="chat-input">
+                    <input type="text" id="messageInput" placeholder="Задайте вопрос Шерлоку..." onkeypress="handleKeyPress(event)">
+                    <button onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <i class="fas fa-brain"></i>
+                <h4>Искусственный Интеллект</h4>
+                <p>Продвинутый AI с возможностями обработки естественного языка и генерации ответов в стиле Шерлока Холмса.</p>
+            </div>
+            
+            <div class="feature-card">
+                <i class="fas fa-search"></i>
+                <h4>RAG Система</h4>
+                <p>Retrieval-Augmented Generation позволяет находить релевантную информацию и генерировать точные ответы на основе контекста.</p>
+            </div>
+            
+            <div class="feature-card">
+                <i class="fas fa-spider"></i>
+                <h4>Веб-скрапинг</h4>
+                <p>Автоматическое извлечение информации с веб-сайтов для расширения базы знаний и улучшения качества ответов.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUrl = '';
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function addMessage(content, isUser = false) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+            messageDiv.textContent = content;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            loading.style.display = show ? 'block' : 'none';
+        }
+
+        function showStatus(message, isError = false) {
+            const statusDiv = document.getElementById('scrapeStatus');
+            statusDiv.className = `status ${isError ? 'error' : 'success'}`;
+            statusDiv.textContent = message;
+            
+            setTimeout(() => {
+                statusDiv.textContent = '';
+                statusDiv.className = 'status';
+            }, 5000);
+        }
+
+        async function scrapeUrl() {
+            const urlInput = document.getElementById('urlInput');
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                showStatus('Пожалуйста, введите URL', true);
+                return;
+            }
+            
+            try {
+                const response = await fetch('/scrape', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url: url })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showStatus(data.message);
+                    currentUrl = url;
+                    addMessage(`Отлично! Я проанализировал сайт ${url} и добавил информацию в свою базу знаний. Теперь я могу отвечать на вопросы, используя эти данные.`, false);
+                } else {
+                    showStatus(data.error, true);
+                }
+            } catch (error) {
+                showStatus('Ошибка при обработке URL', true);
+            }
+        }
+
+        async function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            
+            if (!message) return;
+            
+            // Добавляем сообщение пользователя
+            addMessage(message, true);
+            messageInput.value = '';
+            
+            // Показываем загрузку
+            showLoading(true);
+            
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        message: message,
+                        url: currentUrl 
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.response) {
+                    addMessage(data.response, false);
+                } else {
+                    addMessage('Извините, произошла ошибка при обработке вашего запроса.', false);
+                }
+            } catch (error) {
+                addMessage('Извините, произошла ошибка при отправке сообщения.', false);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Автофокус на поле ввода
+        document.getElementById('messageInput').focus();
+    </script>
+</body>
+</html> 

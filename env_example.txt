@@ -1,0 +1,12 @@
+# OpenAI API Key
+OPENAI_API_KEY=your_openai_api_key_here
+
+# Flask Configuration
+FLASK_ENV=development
+FLASK_DEBUG=True
+
+# Database Configuration (if needed)
+# DATABASE_URL=sqlite:///sherlock_bot.db
+
+# Other Configuration
+LOG_LEVEL=INFO 
