@@ -3,30 +3,25 @@ import requests
 from bs4 import BeautifulSoup
 import json
 from datetime import datetime
-import os
-from dotenv import load_dotenv
 
-load_dotenv()
 app = Flask(__name__)
 
-# Упрощенный промпт для экономии места
-SHERLOCK_PROMPT = "Ты - Шерлок Холмс. Отвечай в стиле детектива. Контекст: {context}. Вопрос: {question}"
+# Упрощенный промпт
+SHERLOCK_PROMPT = "Ты - Шерлок Холмс. Отвечай в стиле детектива."
 
 scraped_content = []
 
 def generate_response(question, context=""):
     """Упрощенная генерация ответа"""
     try:
-        prompt = SHERLOCK_PROMPT.format(context=context, question=question)
         return generate_fallback_response(question, context)
     except Exception as e:
         return "Извините, произошла ошибка."
 
 def generate_fallback_response(question, context=""):
-    """Упрощенные ответы для Vercel"""
+    """Упрощенные ответы"""
     question_lower = question.lower()
     
-    # Сокращенный список ключевых слов
     if any(word in question_lower for word in ['привет', 'здравствуй', 'hello']):
         return "Добро пожаловать! Я Шерлок Холмс, готов помочь в расследовании."
     
@@ -81,7 +76,7 @@ def scrape_website(url):
         return {
             'url': url,
             'title': soup.title.string if soup.title else url,
-            'content': text[:1000],  # Ограничиваем размер
+            'content': text[:500],  # Ограничиваем размер
             'timestamp': datetime.now().isoformat()
         }
         
@@ -89,7 +84,7 @@ def scrape_website(url):
         print(f"Ошибка скрапинга: {e}")
         return None
 
-def find_relevant_context(question, top_k=2):
+def find_relevant_context(question, top_k=1):
     """Упрощенный поиск контекста"""
     if not scraped_content:
         return ""
@@ -106,7 +101,7 @@ def find_relevant_context(question, top_k=2):
             relevance_score = len(common_words) / len(question_words) if question_words else 0
             
             if relevance_score > 0.1:
-                relevant_chunks.append((relevance_score, content['content'][:300]))
+                relevant_chunks.append((relevance_score, content['content'][:200]))
         
         relevant_chunks.sort(reverse=True)
         relevant_context = "\n".join([text for _, text in relevant_chunks[:top_k]])
@@ -172,10 +167,10 @@ def scrape():
 def status():
     return jsonify({
         'status': 'running',
-        'model': 'HuggingChat Vercel',
+        'model': 'Sherlock Holmes Minimal',
         'scraped_sites': len(scraped_content)
     })
 
 if __name__ == '__main__':
-    print("🤖 Запуск AI-бота Шерлока Холмса (Vercel версия)...")
+    print("🤖 Запуск AI-бота Шерлока Холмса (минимальная версия)...")
     app.run(host='0.0.0.0', port=5000, debug=True) 

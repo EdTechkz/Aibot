@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Шерлок Холмс</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #1d1d1f;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #007AFF, #5856D6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #86868b;
+            font-size: 1.1em;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 25px;
+        }
+
+        .sidebar {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 25px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+        }
+
+        .sidebar h3 {
+            color: #1d1d1f;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+
+        .url-input-section {
+            margin-bottom: 25px;
+        }
+
+        .url-input-section label {
+            display: block;
+            margin-bottom: 10px;
+            color: #1d1d1f;
+            font-weight: 500;
+        }
+
+        .url-input-section input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e5e5e7;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            color: #1d1d1f;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .url-input-section input:focus {
+            outline: none;
+            border-color: #007AFF;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #007AFF, #5856D6);
+            color: #ffffff;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 122, 255, 0.3);
+        }
+
+        .features {
+            list-style: none;
+        }
+
+        .features li {
+            padding: 8px 0;
+            color: #1d1d1f;
+            font-weight: 500;
+        }
+
+        .features li::before {
+            content: "🔍 ";
+            margin-right: 8px;
+        }
+
+        .chat-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+
+        .chat-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .chat-header h3 {
+            color: #1d1d1f;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 15px 20px;
+            border-radius: 15px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #007AFF, #5856D6);
+            color: #ffffff;
+        }
+
+        .message.bot {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.9);
+            color: #1d1d1f;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-input {
+            padding: 20px 25px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e5e5e7;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #1d1d1f;
+            font-size: 16px;
+        }
+
+        .chat-input input:focus {
+            outline: none;
+            border-color: #007AFF;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        .chat-input button {
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #007AFF, #5856D6);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .status {
+            margin-top: 15px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .status.success {
+            background: rgba(52, 199, 89, 0.1);
+            color: #34c759;
+        }
+
+        .status.error {
+            background: rgba(255, 59, 48, 0.1);
+            color: #ff3b30;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .chat-container {
+                height: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Шерлок Холмс</h1>
+            <p>AI Детектив с дедуктивным методом</p>
+        </div>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <h3>🌐 Веб-скрапинг</h3>
+                <div class="url-input-section">
+                    <label for="urlInput">URL для анализа:</label>
+                    <input type="url" id="urlInput" placeholder="https://example.com">
+                    <button class="btn" onclick="scrapeUrl()">🔍 Скрапить сайт</button>
+                </div>
+                
+                <div id="scrapeStatus"></div>
+                
+                <h3>💡 Возможности</h3>
+                <ul class="features">
+                    <li>Дедуктивный анализ</li>
+                    <li>Веб-скрапинг</li>
+                    <li>RAG система</li>
+                    <li>Викторианский стиль</li>
+                </ul>
+            </div>
+
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h3>💬 Диалог с Шерлоком</h3>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message bot">
+                        Добро пожаловать! Я Шерлок Холмс, готов помочь в расследовании.
+                    </div>
+                </div>
+                
+                <div class="chat-input">
+                    <input type="text" id="messageInput" placeholder="Задайте вопрос..." onkeypress="handleKeyPress(event)">
+                    <button onclick="sendMessage()">📤</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function addMessage(content, isUser = false) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+            messageDiv.innerHTML = content;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function showStatus(message, isError = false) {
+            const statusDiv = document.getElementById('scrapeStatus');
+            statusDiv.className = `status ${isError ? 'error' : 'success'}`;
+            statusDiv.textContent = message;
+            setTimeout(() => {
+                statusDiv.textContent = '';
+                statusDiv.className = 'status';
+            }, 5000);
+        }
+
+        async function scrapeUrl() {
+            const url = document.getElementById('urlInput').value.trim();
+            if (!url) {
+                showStatus('Введите URL', true);
+                return;
+            }
+            
+            try {
+                const response = await fetch('/scrape', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ url: url })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    showStatus(data.message);
+                    addMessage(`Сайт ${url} проанализирован!`, false);
+                } else {
+                    showStatus(data.error, true);
+                }
+            } catch (error) {
+                showStatus('Ошибка при обработке URL', true);
+            }
+        }
+
+        async function sendMessage() {
+            const message = document.getElementById('messageInput').value.trim();
+            if (!message) return;
+            
+            addMessage(message, true);
+            document.getElementById('messageInput').value = '';
+            
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ message: message })
+                });
+                
+                const data = await response.json();
+                if (data.response) {
+                    addMessage(data.response, false);
+                } else {
+                    addMessage('Ошибка при обработке запроса.', false);
+                }
+            } catch (error) {
+                addMessage('Ошибка при отправке сообщения.', false);
+            }
+        }
+
+        document.getElementById('messageInput').focus();
+    </script>
+</body>
+</html> 
